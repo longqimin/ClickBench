@@ -5,7 +5,7 @@ TRIES=3
 QUERY_NUM=1
 echo "query_num,try,execution_time" >result.csv
 cat queries.sql | while read query; do
-    cd ../../stdb/build.enum-empty-rows/ && ./clap_node/clap_node --config ../stdb-dev.toml &>/tmp/null -c 32 -m 64G &
+    cd ../../stdb/build.enum-empty-rows/ && ./clap_node/clap_node --config ../stdb-dev.toml &>/tmp/null &
     sleep 1
 
     # echo "${QUERY_NUM} ${query}"
