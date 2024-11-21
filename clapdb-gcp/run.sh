@@ -11,7 +11,7 @@ cat queries.sql | while read query; do
     # echo "${QUERY_NUM} ${query}"
     echo -n "["
     for i in $(seq 1 $TRIES); do
-        RES=$(clapctl -n ${deployment} sql -v -s "$query" | grep 'x-process-time' | awk '{print $3}' | awk '{sub(/ms$/, ""); printf "%.3f", $0 / 1000}')
+        RES=$(clapctl -n ${deployment} sql --local -v -s "$query" | grep 'x-process-time' | awk '{print $3}' | awk '{sub(/ms$/, ""); printf "%.3f", $0 / 1000}')
         if [[ -n "$RES" ]]; then
             echo -n "${RES}"
             echo "${QUERY_NUM},${i},${RES}" >>result.csv
