@@ -12,6 +12,9 @@ HITS_TSV=/data/apps/hits.tsv
 if [[ ! -f "$HITS_TSV" ]]; then
     echo "pv -cN source $HITS_TSV_GZ | gzip -d > $HITS_TSV"
     pv -cN source $HITS_TSV_GZ | gzip -d > "$HITS_TSV"
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi
     # gunzip -vc "$HITS_TSV_GZ" > "$HITS_TSV"
     # gzip -dc "$HITS_TSV_GZ" > "$HITS_TSV"
 fi
@@ -19,17 +22,7 @@ fi
 # install
 
 # CLAPDB_DIR=/data/apps/clapdb/build.dev
-cp ${CLAPDB_DIR}/clap_node/createdb .
-if [ $? -ne 0 ]; then
-    exit 1
-fi
-
-cp ${CLAPDB_DIR}/clap_node/clap_node .
-if [ $? -ne 0 ]; then
-    exit 1
-fi
-
-cp ${CLAPDB_DIR}/../stdb.toml .
+cp ${CLAPDB_DIR}/clap_node/createdb ${CLAPDB_DIR}/clap_node/clap_node ${CLAPDB_DIR}/../stdb.toml .
 if [ $? -ne 0 ]; then
     exit 1
 fi
