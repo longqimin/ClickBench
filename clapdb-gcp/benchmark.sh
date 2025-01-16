@@ -66,19 +66,29 @@ EOL
 fi
 
 # Load the data
-
-./clap_node --config ./stdb.toml -c 16 &>/tmp/null &
+CLAPDB_HTTP_PORT=8000
+./clap_node --config ./stdb.toml --proxy-port ${CLAPDB_HTTP_PORT} -c 16 &>/tmp/null &
 sleep 2
 
 echo "do create table hits"
 CREATE_SQL=$(<create.sql)
-clapctl -n $DEPLOYMENT sql --local -s "$CREATE_SQL" -v
+# clapctl -n $DEPLOYMENT sql --local -s "$CREATE_SQL" -v
+echo "Query: $CREATE_SQL"
+curl -X POST -d "${CREATE_SQL}" -u "${USERNAME}.${TENANT}:${PASSWORD}" "http://localhost:${CLAPDB_HTTP_PORT}/psql?database=${DATABASE}"
+# check create table success
 
-clapctl -n $DEPLOYMENT sql --local -v -s "copy hits from '$HITS_TSV' DELIMITER E'\t' CSV;"
+# COPY_SQL="copy hits from '$HITS_TSV' DELIMITER E'\t' CSV;"
+# # clapctl -n $DEPLOYMENT sql --local -v -s "${COPY_SQL}"
+# echo "Query: $COPY_SQL"
+# curl -X POST -d "${COPY_SQL}" -u "${USERNAME}.${TENANT}:${PASSWORD}" "http://localhost:${CLAPDB_HTTP_PORT}/psql?database=${DATABASE}"
+
 echo ""
-clapctl -n $DEPLOYMENT sql --local -v -s "select count(*) from hits"
+COUNT_SQL="select count(*) from hits"
+# clapctl -n $DEPLOYMENT sql --local -v -s "${COUNT_SQL}"
+echo "Query: $COUNT_SQL"
+curl -X POST -d "${COUNT_SQL}" -u "${USERNAME}.${TENANT}:${PASSWORD}" "http://localhost:${CLAPDB_HTTP_PORT}/psql?database=${DATABASE}"
 
 pkill clap_node
 
 # Run the queries
-deployment=${DEPLOYMENT} ./run.sh
+USERNAME=${USERNAME} TENANT=${TENANT} PASSWORD=${PASSWORD} DATABASE=${DATABASE} ./run.sh
