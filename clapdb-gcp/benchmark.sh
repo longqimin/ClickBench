@@ -81,4 +81,10 @@ clapctl -n $DEPLOYMENT sql --local -v -s "select count(*) from hits"
 pkill clap_node
 
 # Run the queries
-deployment=${DEPLOYMENT} ./run.sh
+deployment=${DEPLOYMENT} ./run.sh | tee result.txt
+
+truncate -s -2 result.txt && jq -R -s 'split("\n")' result.txt | sed 's/,\"//g' | sed 's/\"//g' > result.array
+array=$(<result.array)
+time=$(date +"%F %T")
+jq --argjson value "$array" --arg date "$time" '.result = $value | .machine = "unknow" | .date = $date' results/c4-highcpu-32.json > result.json
+rm result.txt result.array
